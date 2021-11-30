@@ -17,7 +17,6 @@ app.use(morgan('dev'));
 app.use(cookieParser());
 
 app.get('/', verifyAccessToken, async (req, res, next) => {
-  // console.log(req.headers['authorization']);
   res.send({ message: 'Awesome it works 🐻' });
 });
 
