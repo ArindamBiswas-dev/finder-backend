@@ -131,14 +131,14 @@ module.exports = {
   addCourse: async (req, res, next) => {
     try {
       const userId = req.payload;
-      const { title, description, rating, courseLink } = req.body;
+      const { title, description, rating, link: courseLink } = req.body;
       const slug = createUniqueSlug(title);
 
       // add the course to database
       //* just ommit the courseLink for now
       await pool.query(
-        `insert into courses(title, description, rating, slug, user_id) values ($1, $2, $3, $4, $5)`,
-        [title, description, rating, slug, userId]
+        `insert into courses(title, description, rating, slug, user_id, course_link) values ($1, $2, $3, $4, $5, $6)`,
+        [title, description, rating, slug, userId, courseLink]
       );
       res.send('course added');
     } catch (err) {
@@ -149,15 +149,21 @@ module.exports = {
   addJI: async (req, res, next) => {
     try {
       const userId = req.payload;
-      const { title, description, startDate, endDate, jobLink } = req.body;
+      const {
+        title,
+        description,
+        startDate,
+        endDate,
+        link: jobLink,
+      } = req.body;
 
       const slug = createUniqueSlug(title);
 
       // add the ji to database
       //* just ommit the jobLink for now
       await pool.query(
-        `insert into ji(title, description, start_date, end_date, slug, user_id) values ($1, $2, $3, $4, $5, $6)`,
-        [title, description, startDate, endDate, slug, userId]
+        `insert into ji(title, description, start_date, end_date, slug, user_id, ji_link) values ($1, $2, $3, $4, $5, $6, $7)`,
+        [title, description, startDate, endDate, slug, userId, jobLink]
       );
       res.send('ji added');
     } catch (err) {
