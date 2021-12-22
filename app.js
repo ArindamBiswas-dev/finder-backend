@@ -2,6 +2,7 @@ const express = require('express');
 const createError = require('http-errors');
 const morgan = require('morgan');
 const cookieParser = require('cookie-parser');
+const cors = require('cors');
 require('dotenv').config();
 require('./util/init_redis');
 
@@ -11,10 +12,11 @@ const AuthRoute = require('./routes/auth.route');
 const { verifyAccessToken } = require('./util/jwtHelper');
 
 const app = express();
+app.use(cors({ credentials: true, origin: true }));
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(morgan('dev'));
-app.use(cookieParser());
 
 app.get('/', verifyAccessToken, async (req, res, next) => {
   res.send({ message: 'Awesome it works 🐻' });

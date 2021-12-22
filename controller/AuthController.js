@@ -44,7 +44,8 @@ module.exports = {
       );
 
       // send email verification mail to the user
-      await sendVerificationMail(email, fullName);
+      const resposnMailPromise = await sendVerificationMail(email, fullName);
+      console.log(resposnMailPromise);
 
       //   const accessToken = await signAccessToken(response.rows[0].id);
       //   const refreshToken = await signRefreshToken(response.rows[0].id, true);
@@ -53,6 +54,7 @@ module.exports = {
       res.send('User Register Successfully');
     } catch (err) {
       if (err.isJoi) err.status = 422;
+      console.log(err.message);
       next(err);
     }
   },
@@ -98,16 +100,34 @@ module.exports = {
       const accessToken = await signAccessToken(user.id);
       const refreshToken = await signRefreshToken(user.id);
 
-      // set the cookies to the client
-      res.cookie('accessToken', accessToken, {
-        httpOnly: true,
-      });
-      res.cookie('refreshToken', refreshToken, {
-        httpOnly: true,
-      });
+      console.log('attaching the cookie');
 
-      res.send({ user, accessToken, refreshToken });
+      // set the cookies to the client
+      // res.cookie('accessToken', accessToken, {
+      //   httpOnly: true,
+      // });
+      // res.cookie('refreshToken', refreshToken, {
+      //   httpOnly: true,
+      // });
+      // res.cookie('hello', 'hello_cookie', {
+      //   httpOnly: false,
+      // });
+
+      // res.send({ user, accessToken, refreshToken });
+      return (
+        res
+          .status(202)
+          // .cookie('accessToken', accessToken, {
+          //   httpOnly: true,
+          // })
+          .cookie('refreshToken', refreshToken, {
+            httpOnly: true,
+            maxAge: 1000 * 60 * 60 * 24 * 30,
+          })
+          .send({ user })
+      );
     } catch (err) {
+      console.log(err.message);
       if (err.isJoi) next(createError.BadRequest('Invalid credentials'));
       next(err);
     }
@@ -120,8 +140,43 @@ module.exports = {
 
       const newAccessToken = await signAccessToken(userId);
       const newRefreshToken = await signRefreshToken(userId);
-      res.send({ accessToken: newAccessToken, refreshToken: newRefreshToken });
+      res.send({
+        userId,
+        accessToken: newAccessToken,
+        refreshToken: newRefreshToken,
+      });
     } catch (err) {
+      next(err);
+    }
+  },
+  getNewAccessToken: async (req, res, next) => {
+    try {
+      const { refreshToken } = req.cookies;
+      console.log(req.cookies);
+      if (!refreshToken) throw createError.BadRequest();
+      const userId = await verifyRefreshToken(refreshToken);
+
+      const newAccessToken = await signAccessToken(userId);
+
+      // fetch the username also
+      const usernameres = await pool.query(
+        `select username from users where id = $1`,
+        [userId]
+      );
+      const username = usernameres.rows[0].username;
+      console.log(username);
+
+      // set the cookies to the client
+      res.cookie('accessToken', newAccessToken, {
+        httpOnly: true,
+      });
+      res.send({
+        userId,
+        username,
+        accessToken: newAccessToken,
+      });
+    } catch (err) {
+      console.log(err.message);
       next(err);
     }
   },

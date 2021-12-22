@@ -21,20 +21,21 @@ oAuth2Client.setCredentials({ refresh_token: REFRESH_TOKEN });
 async function sendVerificationMail(userMail, name) {
   try {
     const token = await signJWTwithEmail(userMail);
-    const accessToken = await oAuth2Client.getAccessToken();
+    // const accessToken = await oAuth2Client.getAccessToken();
     const transport = nodemailer.createTransport({
       service: 'gmail',
       auth: {
-        type: 'OAuth2',
+        // type: 'OAuth2',
         user: 'arindambiswas290@gmail.com',
-        clientId: CLIENT_ID,
-        clientSecret: CLIENT_SECRET,
-        refreshToken: REFRESH_TOKEN,
-        accessToken: accessToken,
+        // clientId: CLIENT_ID,
+        // clientSecret: CLIENT_SECRET,
+        // refreshToken: REFRESH_TOKEN,
+        // accessToken: accessToken,
+        pass: 'Xs2FM7573Y7zZDt',
       },
     });
     const mailOptions = {
-      from: 'Arindam <arindambiswas290@gmail.com>',
+      from: 'Finder <arindambiswas290@gmail.com>',
       to: userMail,
       subject: 'Verify your account',
       text: 'Verify your Finder account',
@@ -42,7 +43,7 @@ async function sendVerificationMail(userMail, name) {
         <h3>Hello, ${name}</h3>
         <p>You're almost ready to get started. Please click on the button below to verify your email address.</p>
         <br />
-        <a href="https://localhost:5000/auth/verify/${token}" target="_blank">Visit W3Schools</a>
+        <a href="http://localhost:5000/auth/verify/${token}" target="_blank">Verify</a>
         <br />
         <strong>Finder</strong>
       `,
@@ -59,6 +60,7 @@ function getEmailFromJWT(token) {
   return new Promise((resolve, reject) => {
     jwt.verify(token, JWT_MAIL_VERIFICATION_SECRET, (err, payload) => {
       if (err) {
+        console.log('verification mail sending error', err.message);
         return reject(err);
       }
       return resolve(payload.aud);
