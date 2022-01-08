@@ -114,18 +114,16 @@ module.exports = {
       // });
 
       // res.send({ user, accessToken, refreshToken });
-      return (
-        res
-          .status(202)
-          // .cookie('accessToken', accessToken, {
-          //   httpOnly: true,
-          // })
-          .cookie('refreshToken', refreshToken, {
-            httpOnly: true,
-            maxAge: 1000 * 60 * 60 * 24 * 30,
-          })
-          .send({ user })
-      );
+      return res
+        .status(202)
+        .cookie('accessToken', accessToken, {
+          httpOnly: true,
+        })
+        .cookie('refreshToken', refreshToken, {
+          httpOnly: true,
+          maxAge: 1000 * 60 * 60 * 24 * 30,
+        })
+        .send({ token: accessToken, user });
     } catch (err) {
       console.log(err.message);
       if (err.isJoi) next(createError.BadRequest('Invalid credentials'));
@@ -159,20 +157,18 @@ module.exports = {
       const newAccessToken = await signAccessToken(userId);
 
       // fetch the username also
-      const usernameres = await pool.query(
-        `select username from users where id = $1`,
-        [userId]
-      );
-      const username = usernameres.rows[0].username;
-      console.log(username);
+      const users = await pool.query(`select * from users where id = $1`, [
+        userId,
+      ]);
+      const user = users.rows[0];
+      console.log(user);
 
       // set the cookies to the client
       res.cookie('accessToken', newAccessToken, {
         httpOnly: true,
       });
       res.send({
-        userId,
-        username,
+        user,
         accessToken: newAccessToken,
       });
     } catch (err) {
