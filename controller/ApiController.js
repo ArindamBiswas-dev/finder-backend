@@ -1,6 +1,7 @@
 const createError = require('http-errors');
 const pool = require('../db.config');
 const { createUniqueSlug } = require('../util/createUniqueSlug');
+const { cloudinary } = require('../util/cloudinaryConfig');
 
 const LIMIT = 1;
 
@@ -329,11 +330,17 @@ module.exports = {
   },
   updateProfile: async (req, res, next) => {
     try {
-      const { name, username, bio } = req.body;
+      const { name, username, bio, avatar } = req.body;
       const userId = req.payload;
+
+      const uploadResponse = await cloudinary.uploader.upload(avatar, {
+        upload_preset: 'kmmczlkc',
+      });
+      console.log(uploadResponse.secure_url);
+
       const response = await pool.query(
-        `update users set full_name = $1, username = $2, bio = $3 where id = $4`,
-        [name, username, bio, userId]
+        `update users set full_name = $1, username = $2, avatar = $3, bio = $4 where id = $5`,
+        [name, username, uploadResponse.secure_url, bio, userId]
       );
       res.send('Profile updated');
     } catch (err) {
@@ -343,7 +350,7 @@ module.exports = {
       ) {
         err.message = 'Username is already taken';
       }
-      console.log(err.message);
+      console.log(err);
       next(err);
     }
   },

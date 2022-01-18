@@ -31,7 +31,7 @@ async function sendVerificationMail(userMail, name) {
         // clientSecret: CLIENT_SECRET,
         // refreshToken: REFRESH_TOKEN,
         // accessToken: accessToken,
-        pass: 'Xs2FM7573Y7zZDt',
+        pass: 'kHGyLwPhJ4GgLRR',
       },
     });
     const mailOptions = {

@@ -12,6 +12,7 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt": "^5.0.1",
+    "cloudinary": "^1.28.1",
     "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
     "crypto-random-string": "^4.0.0",

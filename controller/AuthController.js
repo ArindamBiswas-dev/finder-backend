@@ -38,9 +38,11 @@ module.exports = {
 
       const defaultUserName = firstName + crypto.randomBytes(5).toString('hex');
 
+      const avatar = `https://avatars.dicebear.com/api/bottts/${defaultUserName}.svg?background=white`;
+
       const response = await pool.query(
-        `insert into users(full_name, username, email, password) values($1, $2, $3, $4) returning *;`,
-        [fullName, defaultUserName, email, hashedPassword]
+        `insert into users(full_name, username, email, password, avatar) values($1, $2, $3, $4, $5) returning *;`,
+        [fullName, defaultUserName, email, hashedPassword, avatar]
       );
 
       // send email verification mail to the user
